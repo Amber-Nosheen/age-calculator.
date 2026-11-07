@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ultra Compact Age Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Strict No-Scroll Guarantee */
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            max-height: 100dvh;
+            overflow: hidden !important;
+            touch-action: manipulation;
+        }
+
+        /* Dynamic CSS Theme Variables */
+        :root {
+            --bg-base: #060812;
+            --panel-bg: rgba(15, 23, 42, 0.85);
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.9);
+            
+            --accent-primary: #00f3ff;
+            --accent-gradient: linear-gradient(135deg, #00f3ff, #3b82f6);
+            --glow-color: rgba(0, 243, 255, 0.25);
+        }
+
+        /* Light Mode Overrides */
+        html.light {
+            --bg-base: #f1f5f9;
+            --panel-bg: rgba(255, 255, 255, 0.85);
+            --card-bg: rgba(241, 245, 249, 0.8);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --input-bg: #ffffff;
+        }
+
+        /* Theme Color Palettes */
+        body[data-theme="cyber"] {
+            --accent-primary: #00f3ff;
+            --accent-gradient: linear-gradient(135deg, #00f3ff, #ec4899);
+            --glow-color: rgba(0, 243, 255, 0.25);
+        }
+
+        body[data-theme="sunset"] {
+            --accent-primary: #ff6b6b;
+            --accent-gradient: linear-gradient(135deg, #ff6b6b, #ff8e53);
+            --glow-color: rgba(255, 107, 107, 0.25);
+        }
+
+        body[data-theme="emerald"] {
+            --accent-primary: #10b981;
+            --accent-gradient: linear-gradient(135deg, #10b981, #059669);
+            --glow-color: rgba(16, 185, 129, 0.25);
+        }
+
+        body[data-theme="midnight"] {
+            --accent-primary: #a855f7;
+            --accent-gradient: linear-gradient(135deg, #a855f7, #6366f1);
+            --glow-color: rgba(168, 85, 247, 0.25);
+        }
+
+        body[data-theme="candy"] {
+            --accent-primary: #f472b6;
+            --accent-gradient: linear-gradient(135deg, #f472b6, #38bdf8);
+            --glow-color: rgba(244, 114, 182, 0.25);
+        }
+
+        /* Glass Panel Styles */
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+        }
+
+        .theme-accent-text {
+            color: var(--accent-primary);
+        }
+
+        .theme-accent-bg {
+            background-color: var(--accent-primary);
+        }
+
+        .theme-accent-gradient-bg {
+            background: var(--accent-gradient);
+        }
+
+        .theme-glow-shadow {
+            box-shadow: 0 0 25px var(--glow-color);
+        }
+
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.8);
+            cursor: pointer;
+        }
+
+        html.light input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.2);
+        }
+    </style>
+</head>
+<body data-theme="cyber" class="bg-[var(--bg-base)] text-[var(--text-main)] h-full w-full flex items-center justify-center p-3 font-sans relative overflow-hidden transition-colors duration-300">
+
+    <!-- Ambient Glow Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[260px] h-[260px] rounded-full blur-[90px] pointer-events-none opacity-30 theme-accent-bg"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[260px] h-[260px] rounded-full blur-[90px] pointer-events-none opacity-20 theme-accent-bg"></div>
+
+    <!-- Main Compact Card Container -->
+    <div class="w-full max-w-[400px] glass-panel rounded-3xl p-4 sm:p-5 shadow-2xl relative z-10 theme-glow-shadow transition-all duration-300">
+        
+        <!-- Header: Logo, Title, Dark Toggle & Palette -->
+        <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-xl theme-accent-gradient-bg flex items-center justify-center text-slate-950 font-extrabold text-sm shadow-md">
+                    <i class="fa-solid fa-calculator"></i>
+                </div>
+                <div>
+                    <h1 class="text-xs font-black tracking-wider uppercase text-[var(--text-main)] leading-none">CHRONOS</h1>
+                    <span class="text-[9px] font-semibold text-[var(--text-muted)] tracking-tight">AGE CALCULATOR</span>
+                </div>
+            </div>
+
+            <!-- Controls: Dark/Light Mode & Palette Switcher -->
+            <div class="flex items-center gap-2">
+                <!-- Color Theme Circles -->
+                <div class="flex items-center gap-1 bg-slate-900/40 p-1 rounded-full border border-white/10">
+                    <button onclick="setTheme('cyber')" title="Cyber" class="w-3.5 h-3.5 rounded-full bg-[#00f3ff] hover:scale-125 transition-transform"></button>
+                    <button onclick="setTheme('sunset')" title="Sunset" class="w-3.5 h-3.5 rounded-full bg-[#ff6b6b] hover:scale-125 transition-transform"></button>
+                    <button onclick="setTheme('emerald')" title="Emerald" class="w-3.5 h-3.5 rounded-full bg-[#10b981] hover:scale-125 transition-transform"></button>
+                    <button onclick="setTheme('midnight')" title="Midnight" class="w-3.5 h-3.5 rounded-full bg-[#a855f7] hover:scale-125 transition-transform"></button>
+                    <button onclick="setTheme('candy')" title="Candy" class="w-3.5 h-3.5 rounded-full bg-[#f472b6] hover:scale-125 transition-transform"></button>
+                </div>
+
+                <!-- Dark Mode Toggle Button -->
+                <button id="themeToggleBtn" onclick="toggleDarkMode()" 
+                    class="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-[10px] font-semibold text-slate-200 border border-white/10 transition-colors flex items-center gap-1">
+                    <i id="themeIcon" class="fa-solid fa-moon text-yellow-400"></i>
+                    <span id="themeBtnText">Dark</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Input Form Section -->
+        <form id="ageForm" onsubmit="event.preventDefault(); calculateAge();" class="space-y-3 mb-4">
+            <div>
+                <label for="dob" class="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1">
+                    Date & Time of Birth
+                </label>
+                <input type="datetime-local" id="dob" required 
+                    class="w-full bg-[var(--input-bg)] border border-white/10 rounded-xl px-3 py-2 text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-cyan-500/50 font-mono text-xs shadow-inner">
+            </div>
+
+            <!-- Preset Buttons -->
+            <div class="flex items-center justify-between text-[10px]">
+                <span class="text-[var(--text-muted)] text-[9px] font-medium">Quick Presets:</span>
+                <div class="flex gap-1">
+                    <button type="button" onclick="setPresetYears(18)" class="px-2 py-0.5 rounded-md bg-slate-800/60 hover:bg-slate-700/80 text-[var(--text-main)] font-mono text-[10px] border border-white/10 transition-colors">18y</button>
+                    <button type="button" onclick="setPresetYears(25)" class="px-2 py-0.5 rounded-md bg-slate-800/60 hover:bg-slate-700/80 text-[var(--text-main)] font-mono text-[10px] border border-white/10 transition-colors">25y</button>
+                    <button type="button" onclick="setPresetYears(30)" class="px-2 py-0.5 rounded-md bg-slate-800/60 hover:bg-slate-700/80 text-[var(--text-main)] font-mono text-[10px] border border-white/10 transition-colors">30y</button>
+                </div>
+            </div>
+
+            <!-- Error Banner -->
+            <div id="errorAlert" class="hidden p-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-[10px] flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation flex-shrink-0"></i>
+                <span id="errorMessage">Date cannot be in the future!</span>
+            </div>
+
+            <!-- Calculate Button -->
+            <button type="submit" 
+                class="w-full py-2.5 px-4 rounded-xl theme-accent-gradient-bg text-slate-950 font-extrabold text-xs tracking-wider uppercase shadow-lg hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                <i class="fa-solid fa-calculator"></i>
+                <span>CALCULATE AGE</span>
+            </button>
+        </form>
+
+        <!-- Clean 3x2 Results Grid -->
+        <div class="grid grid-cols-3 gap-2 mb-3">
+            <div class="glass-card p-2.5 rounded-2xl text-center">
+                <span id="resYears" class="block text-xl font-black font-mono text-[var(--text-main)] leading-none mb-1">00</span>
+                <span class="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Years</span>
+            </div>
+            <div class="glass-card p-2.5 rounded-2xl text-center">
+                <span id="resMonths" class="block text-xl font-black font-mono theme-accent-text leading-none mb-1">00</span>
+                <span class="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Months</span>
+            </div>
+            <div class="glass-card p-2.5 rounded-2xl text-center">
+                <span id="resDays" class="block text-xl font-black font-mono text-[var(--text-main)] leading-none mb-1">00</span>
+                <span class="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Days</span>
+            </div>
+            <div class="glass-card p-2.5 rounded-2xl text-center">
+                <span id="resHours" class="block text-xl font-black font-mono text-[var(--text-main)] leading-none mb-1">00</span>
+                <span class="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Hours</span>
+            </div>
+            <div class="glass-card p-2.5 rounded-2xl text-center">
+                <span id="resMinutes" class="block text-xl font-black font-mono text-[var(--text-main)] leading-none mb-1">00</span>
+                <span class="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Mins</span>
+            </div>
+            <div class="glass-card p-2.5 rounded-2xl text-center">
+                <span id="resSeconds" class="block text-xl font-black font-mono theme-accent-text leading-none mb-1">00</span>
+                <span class="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Secs</span>
+            </div>
+        </div>
+
+        <!-- Cumulative Summary Metrics -->
+        <div class="glass-card p-2.5 rounded-2xl grid grid-cols-2 gap-2 text-center text-xs">
+            <div>
+                <span class="text-[8px] text-[var(--text-muted)] block uppercase font-bold tracking-wider">Total Days</span>
+                <span id="totalDays" class="font-bold font-mono text-[var(--text-main)]">0</span>
+            </div>
+            <div>
+                <span class="text-[8px] text-[var(--text-muted)] block uppercase font-bold tracking-wider">Total Hours</span>
+                <span id="totalHours" class="font-bold font-mono text-[var(--text-main)]">0</span>
+            </div>
+            <div>
+                <span class="text-[8px] text-[var(--text-muted)] block uppercase font-bold tracking-wider">Total Minutes</span>
+                <span id="totalMinutes" class="font-bold font-mono text-[var(--text-main)]">0</span>
+            </div>
+            <div>
+                <span class="text-[8px] text-[var(--text-muted)] block uppercase font-bold tracking-wider">Total Seconds</span>
+                <span id="totalSeconds" class="font-bold font-mono theme-accent-text">0</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            setPresetYears(25);
+        });
+
+        // Toggle Dark / Light Theme
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            const btnText = document.getElementById('themeBtnText');
+
+            if (html.classList.contains('light')) {
+                html.classList.remove('light');
+                icon.className = 'fa-solid fa-moon text-yellow-400';
+                btnText.textContent = 'Dark';
+            } else {
+                html.classList.add('light');
+                icon.className = 'fa-solid fa-sun text-amber-500';
+                btnText.textContent = 'Light';
+            }
+        }
+
+        // Palette Themes
+        function setTheme(themeName) {
+            document.body.setAttribute('data-theme', themeName);
+        }
+
+        // Set Preset Date
+        function setPresetYears(yearsAgo) {
+            const date = new Date();
+            date.setFullYear(date.getFullYear() - yearsAgo);
+            date.setHours(9, 0, 0, 0);
+
+            const pad = (n) => String(n).padStart(2, '0');
+            const formatted = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+            
+            document.getElementById('dob').value = formatted;
+            calculateAge();
+        }
+
+        // Perform Precise Age Calculation
+        function calculateAge() {
+            const dobInput = document.getElementById('dob').value;
+            const errorAlert = document.getElementById('errorAlert');
+            
+            if (!dobInput) {
+                showError("Please select a birth date.");
+                return;
+            }
+
+            const dob = new Date(dobInput);
+            const now = new Date();
+
+            if (dob > now) {
+                showError("Date of birth cannot be in the future!");
+                return;
+            }
+
+            errorAlert.classList.add('hidden');
+
+            let years = now.getFullYear() - dob.getFullYear();
+            let months = now.getMonth() - dob.getMonth();
+            let days = now.getDate() - dob.getDate();
+            let hours = now.getHours() - dob.getHours();
+            let minutes = now.getMinutes() - dob.getMinutes();
+            let seconds = now.getSeconds() - dob.getSeconds();
+
+            if (seconds < 0) { seconds += 60; minutes--; }
+            if (minutes < 0) { minutes += 60; hours--; }
+            if (hours < 0) { hours += 24; days--; }
+            if (days < 0) {
+                const prevMonthDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                days += prevMonthDate.getDate();
+                months--;
+            }
+            if (months < 0) { months += 12; years--; }
+
+            // Display standard unit counts
+            document.getElementById('resYears').textContent = String(years).padStart(2, '0');
+            document.getElementById('resMonths').textContent = String(months).padStart(2, '0');
+            document.getElementById('resDays').textContent = String(days).padStart(2, '0');
+            document.getElementById('resHours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('resMinutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('resSeconds').textContent = String(seconds).padStart(2, '0');
+
+            // Cumulative totals
+            const diffMs = now - dob;
+            const totalSecs = Math.floor(diffMs / 1000);
+            const totalMins = Math.floor(totalSecs / 60);
+            const totalHrs = Math.floor(totalMins / 60);
+            const totalDys = Math.floor(totalHrs / 24);
+
+            document.getElementById('totalDays').textContent = totalDys.toLocaleString();
+            document.getElementById('totalHours').textContent = totalHrs.toLocaleString();
+            document.getElementById('totalMinutes').textContent = totalMins.toLocaleString();
+            document.getElementById('totalSeconds').textContent = totalSecs.toLocaleString();
+        }
+    </script>
+</body>
+</html>
